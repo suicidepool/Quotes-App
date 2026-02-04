@@ -1,0 +1,58 @@
+package com.oms.quotify.viewModel
+
+import android.content.Context
+import android.content.Intent
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.lifecycle.ViewModel
+import com.google.gson.Gson
+import com.oms.quotify.model.QuoteModel
+import com.oms.quotify.R
+
+class MainViewModel(val context: Context): ViewModel() {
+    private var quoteList: Array<QuoteModel>
+    private var index = 0
+    var currentQuote by mutableStateOf(QuoteModel("",""))
+
+    init {
+        quoteList = loadQuotes()
+        currentQuote = quoteList[index]
+    }
+
+    private fun loadQuotes(): Array<QuoteModel>{
+        val inputStream = context.resources.openRawResource(R.raw.quotes)
+        val size = inputStream.available()
+        val buffer = ByteArray(size)
+        inputStream.read(buffer)
+        inputStream.close()
+
+        val json = String(buffer, Charsets.UTF_8)
+        val gson = Gson()
+        return gson.fromJson(json, Array<QuoteModel>::class.java)
+    }
+
+    fun nextQuote(){
+        index = (index+1) % quoteList.size
+        currentQuote = quoteList[index]
+    }
+
+    fun prevQuote(){
+        index = if(index - 1 < 0) quoteList.size - 1 else index - 1
+        currentQuote = quoteList[index]
+    }
+
+    fun sendQuote(){
+        val shareText = "\"${currentQuote.quote}\" - ${currentQuote.author}"
+
+        val intent = Intent(Intent.ACTION_SEND).apply {
+            type = "text/plain"
+            putExtra(Intent.EXTRA_TEXT, shareText)
+        }
+
+        context.startActivity(
+            Intent.createChooser(intent,"Share Quote via")
+        )
+    }
+}
