@@ -10,11 +10,18 @@ import androidx.lifecycle.ViewModel
 import com.google.gson.Gson
 import com.oms.quotify.model.QuoteModel
 import com.oms.quotify.R
+import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
+import javax.inject.Inject
 
-class MainViewModel(val context: Context): ViewModel() {
+@HiltViewModel
+class MainViewModel @Inject constructor(
+    @param:ApplicationContext val context: Context
+): ViewModel() {
     private var quoteList: Array<QuoteModel>
     private var index = 0
     var currentQuote by mutableStateOf(QuoteModel("",""))
+    var shareQuoteEvent by mutableStateOf<String?>(null)
 
     init {
         quoteList = loadQuotes()
@@ -43,16 +50,12 @@ class MainViewModel(val context: Context): ViewModel() {
         currentQuote = quoteList[index]
     }
 
-    fun sendQuote(){
-        val shareText = "\"${currentQuote.quote}\" - ${currentQuote.author}"
+    fun onShareClicked() {
+        shareQuoteEvent =
+            "\"${currentQuote.quote}\" - ${currentQuote.author}"
+    }
 
-        val intent = Intent(Intent.ACTION_SEND).apply {
-            type = "text/plain"
-            putExtra(Intent.EXTRA_TEXT, shareText)
-        }
-
-        context.startActivity(
-            Intent.createChooser(intent,"Share Quote via")
-        )
+    fun onShareHandled() {
+        shareQuoteEvent = null
     }
 }
