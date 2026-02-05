@@ -32,7 +32,9 @@ import com.oms.quotify.ui.component.Title
 import com.oms.quotify.ui.theme.QuotifyTheme
 import com.oms.quotify.viewModel.MainViewModel
 import com.oms.quotify.viewModel.MainViewModelFactory
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     lateinit var mainViewModel: MainViewModel
 
